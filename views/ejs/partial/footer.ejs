@@ -1,0 +1,105 @@
+</div>
+<script>
+   let sms_html = ``;
+   let tabla = ``;
+let socket = new io();
+    let filas = document.getElementById("filas");
+    let formulario = document.getElementById("form");
+    formulario.addEventListener("submit", e =>{
+        e.preventDefault();
+        let productos ={
+            titulo: e.target[0].value,
+            precio: e.target[1].value,
+            url: e.target[2].value
+        }
+        if(productos.titulo == "" || productos.precio == "" || productos.url == "" ){
+            alert("Un campo está incompleto");
+        }
+        console.log(productos);
+        socket.emit("datos",productos)
+    })
+
+    socket.on("produc", data =>{
+        if(data.length > 0){
+        armarTablaInit(data)}
+    })
+
+    socket.on("tabla", data =>{
+        armarTabla(data)
+    })
+
+    function armarTabla(data){
+  
+      tabla += `
+              <tr>
+                <th>${data.titulo}</th>
+                <th>${data.precio}</th>
+                <th><img src="${data.url}" alt="" style="height: 50px; width: 50px;"></th>                        
+              </tr>
+              `
+    
+    filas.innerHTML = tabla
+  }
+
+  function armarTablaInit(data){
+
+    for(const datos of data){
+        console.log(datos.titulo)
+      tabla += `
+              <tr>
+                <th>${datos.titulo}</th>
+                <th>${datos.precio}</th>
+                <th><img src="${datos.url}" alt="" style="height: 50px; width: 50px;"></th>                        
+              </tr>
+              `
+    }
+    filas.innerHTML = tabla
+  }
+
+
+        //let mensaje = document.getElementById("mensaje")
+        let parrafo = document.getElementById("parrafo")
+        let form_data_user = document.getElementById('data_user')
+
+        form_data_user.addEventListener("submit", e =>{
+            e.preventDefault();
+            let chat = {
+                mail: e.target[0].value,
+                mensaje: e.target[1].value
+            }               
+            if(chat.mail == "" || chat.message == ""){
+              alert("Un campo incompleto");
+            }
+            console.log(chat)
+            socket.emit("nuevoChat", chat)
+        })
+
+        socket.on("chatInit", data => {
+            if(data.length > 0){
+                fill_messageInit(data)
+            } 
+          })
+        socket.on("mensaje", data =>{
+          console.log(data)
+          fill_message(data)
+        })
+
+          function fill_message(data){
+            //let sms_html = ``;
+            //for(const sms of data){
+                sms_html += `<p><b>${data.mail}</b>|${data.hora}|:<i> ${data.mensaje} </i></p>`
+           // }
+            parrafo.innerHTML = sms_html
+        }
+
+        function fill_messageInit(data){
+           
+            for(const sms of data){
+                sms_html += `<p><b>${sms.mail}</b>|${sms.hora}|:<i> ${sms.mensaje} </i></p>`
+            }
+            parrafo.innerHTML = sms_html
+        }
+</script>
+
+</body>
+</html>
